@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.fastchar</groupId>
+    <artifactId>fastchar-oss</artifactId>
+    <version>1.0</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>7</source>
+                    <target>7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fastchar</groupId>
+            <artifactId>fastchar</artifactId>
+            <version>[1.0,) </version>
+            <scope>compile</scope>
+        </dependency>
+
+       <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
+       <dependency>
+           <groupId>com.aliyun.oss</groupId>
+           <artifactId>aliyun-sdk-oss</artifactId>
+           <version>3.4.2</version>
+           <scope>compile</scope>
+       </dependency>
+
+   </dependencies>
+
+</project>
