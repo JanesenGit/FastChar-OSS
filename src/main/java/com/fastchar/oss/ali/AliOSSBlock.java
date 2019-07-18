@@ -40,9 +40,9 @@ public class AliOSSBlock {
     }
 
     public enum SecurityEnum {
-        block_private,
-        block_public_read,
-        block_public_read_write
+        Block_Private,
+        Block_Public_Read,
+        Block_Public_Read_Write
     }
 
 
@@ -84,7 +84,7 @@ public class AliOSSBlock {
      * @return
      */
     public String getFileUrl(String fileKey, int minute) {
-        if (getBlockSecurity() == SecurityEnum.block_private) {
+        if (getBlockSecurity() == SecurityEnum.Block_Private) {
             URL fileUrl = AliOSSUtils.getFileUrl(getBlockName(), fileKey, minute);
             if (fileUrl != null) {
                 return fileUrl.toString();

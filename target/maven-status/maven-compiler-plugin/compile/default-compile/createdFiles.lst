@@ -1,6 +1,0 @@
-com/fastchar/oss/ali/AliOSSConfig.class
-com/fastchar/oss/ali/AliOSSUtils.class
-com/fastchar/oss/core/FastOSSFile.class
-com/fastchar/oss/ali/AliOSSBlock$SecurityEnum.class
-com/fastchar/oss/ali/AliOSSBlock.class
-com/fastchar/oss/exception/FastAliBlockException.class
