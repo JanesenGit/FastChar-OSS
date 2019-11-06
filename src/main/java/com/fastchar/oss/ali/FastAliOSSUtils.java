@@ -6,16 +6,15 @@ import com.fastchar.core.FastChar;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 
-public class AliOSSUtils {
+public class FastAliOSSUtils {
 
     private static OSSClient getClient() {
-        return new OSSClient(FastChar.getConfig(AliOSSConfig.class).getEndPoint(),
-                FastChar.getConfig(AliOSSConfig.class).getAccessKeyId(),
-                FastChar.getConfig(AliOSSConfig.class).getAccessKeySecret());
+        return new OSSClient(FastChar.getConfig(FastAliOSSConfig.class).getEndPoint(),
+                FastChar.getConfig(FastAliOSSConfig.class).getAccessKeyId(),
+                FastChar.getConfig(FastAliOSSConfig.class).getAccessKeySecret());
 
     }
 

@@ -6,17 +6,18 @@ import com.fastchar.utils.FastStringUtils;
 
 import java.net.URL;
 
-public class AliOSSBlock {
+public class FastAliOSSBlock {
 
     private String blockName;//oss的存储块名称
     private String blockHttp;//oss的存储块访问地址
     private SecurityEnum blockSecurity;
+    private boolean blockDefault;
 
     public String getBlockName() {
         return blockName;
     }
 
-    public AliOSSBlock setBlockName(String blockName) {
+    public FastAliOSSBlock setBlockName(String blockName) {
         this.blockName = blockName;
         return this;
     }
@@ -25,7 +26,7 @@ public class AliOSSBlock {
         return blockHttp;
     }
 
-    public AliOSSBlock setBlockHttp(String blockHttp) {
+    public FastAliOSSBlock setBlockHttp(String blockHttp) {
         this.blockHttp = FastStringUtils.stripEnd(blockHttp, "/") + "/";
         return this;
     }
@@ -34,8 +35,17 @@ public class AliOSSBlock {
         return blockSecurity;
     }
 
-    public AliOSSBlock setBlockSecurity(SecurityEnum blockSecurity) {
+    public FastAliOSSBlock setBlockSecurity(SecurityEnum blockSecurity) {
         this.blockSecurity = blockSecurity;
+        return this;
+    }
+
+    public boolean isBlockDefault() {
+        return blockDefault;
+    }
+
+    public FastAliOSSBlock setBlockDefault(boolean blockDefault) {
+        this.blockDefault = blockDefault;
         return this;
     }
 
@@ -54,7 +64,7 @@ public class AliOSSBlock {
      * @param metadata
      */
     public void uploadFile(String fileKey, String url, ObjectMetadata metadata) throws Exception {
-        AliOSSUtils.uploadFile(getBlockName(), fileKey, url, metadata);
+        FastAliOSSUtils.uploadFile(getBlockName(), fileKey, url, metadata);
     }
 
     /**
@@ -63,7 +73,7 @@ public class AliOSSBlock {
      * @param url 网络路径或本地路径
      */
     public void uploadFile(String fileKey, String url) throws Exception {
-        AliOSSUtils.uploadFile(getBlockName(), fileKey, url, null);
+        FastAliOSSUtils.uploadFile(getBlockName(), fileKey, url, null);
     }
 
 
@@ -73,7 +83,7 @@ public class AliOSSBlock {
      * @return
      */
     public String getFileUrl(String fileKey) {
-        return getFileUrl(fileKey, FastChar.getConfig(AliOSSConfig.class).getMinute());
+        return getFileUrl(fileKey, FastChar.getConfig(FastAliOSSConfig.class).getMinute());
     }
 
     /**
@@ -85,7 +95,7 @@ public class AliOSSBlock {
      */
     public String getFileUrl(String fileKey, int minute) {
         if (getBlockSecurity() == SecurityEnum.Block_Private) {
-            URL fileUrl = AliOSSUtils.getFileUrl(getBlockName(), fileKey, minute);
+            URL fileUrl = FastAliOSSUtils.getFileUrl(getBlockName(), fileKey, minute);
             if (fileUrl != null) {
                 return fileUrl.toString();
             }
@@ -99,7 +109,7 @@ public class AliOSSBlock {
      * @return
      */
     public boolean existFile(String fileKey) {
-        return AliOSSUtils.existFile(getBlockName(), fileKey);
+        return FastAliOSSUtils.existFile(getBlockName(), fileKey);
     }
 
 
@@ -109,7 +119,7 @@ public class AliOSSBlock {
      * @return
      */
     public boolean deleteFile(String fileKey) {
-        return AliOSSUtils.deleteFile(getBlockName(), fileKey);
+        return FastAliOSSUtils.deleteFile(getBlockName(), fileKey);
     }
 
 
