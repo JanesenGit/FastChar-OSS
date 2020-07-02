@@ -21,8 +21,9 @@ public class FastAliOSSConfig implements IFastConfig {
     public FastAliOSSConfig() {
         FastChar.getOverrides().add(FastAliOSSFile.class);
         if (FastChar.getConstant().isDebug()) {
-            FastChar.getLog().info("已启用阿里云OSS服务器！");
+            FastChar.getLog().info("已启用阿里云OSS（对象存储）服务器！");
         }
+        FastChar.getValues().put("oss", "ali");
     }
 
     public String getAccessKeyId() {
