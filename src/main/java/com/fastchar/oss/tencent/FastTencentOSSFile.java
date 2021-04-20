@@ -3,6 +3,8 @@ package com.fastchar.oss.tencent;
 import com.fastchar.annotation.AFastPriority;
 import com.fastchar.core.FastChar;
 import com.fastchar.core.FastFile;
+import com.fastchar.oss.ali.FastAliOSSBlock;
+import com.fastchar.oss.ali.FastAliOSSConfig;
 import com.fastchar.oss.interfaces.IFastOSSListener;
 import com.fastchar.utils.FastFileUtils;
 import com.fastchar.utils.FastStringUtils;
@@ -10,6 +12,7 @@ import com.qcloud.cos.model.ObjectMetadata;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 
 @AFastPriority
@@ -43,8 +46,13 @@ public class FastTencentOSSFile extends FastFile<FastTencentOSSFile> {
         if (FastStringUtils.isEmpty(uploadFileName)) {
             uploadFileName = getFileName();
         }
-        metadata.setContentDisposition("attachment;filename=\"" + uploadFileName + "\"");
+        if (FastStringUtils.isNotEmpty(uploadFileName)) {
+            metadata.setContentDisposition("attachment;filename=\"" + URLEncoder.encode(uploadFileName, "utf-8")  + "\"");
+            metadata.setHeader("x-cos-meta-upload-file-name", URLEncoder.encode(uploadFileName, "utf-8") );
+        }
         metadata.setContentEncoding("utf-8");
+        metadata.setHeader("Access-Control-Allow-Origin", "*");
+        metadata.setHeader("x-cos-meta-powered-by", "FastChar-OSS");
         return moveToOSS(blockName, metadata);
     }
 
@@ -52,18 +60,33 @@ public class FastTencentOSSFile extends FastFile<FastTencentOSSFile> {
 
     public FastTencentOSSFile moveToOSS(String blockName, ObjectMetadata metadata) throws Exception {
         File file = getFile();
-        IFastOSSListener iFastOSSListener = FastChar.getOverrides().newInstance(false, IFastOSSListener.class);
-        if (iFastOSSListener != null) {
-            if (!iFastOSSListener.onMoveToOSS(this)) {
-                return this;
+        if (file != null && file.exists()) {
+            IFastOSSListener iFastOSSListener = FastChar.getOverrides().newInstance(false, IFastOSSListener.class);
+            if (iFastOSSListener != null) {
+                if (!iFastOSSListener.onMoveToOSS(this)) {
+                    return this;
+                }
             }
+            FastChar.getConfig(getConfigOnlyCode(),FastTencentOSSConfig.class).getBlock(blockName)
+                    .uploadFile(getKey(), file.getAbsolutePath(), metadata);
+            try {
+                FastFileUtils.forceDelete(file);
+            } catch (Exception ignored) {}
         }
-        FastChar.getConfig(getConfigOnlyCode(),FastTencentOSSConfig.class).getBlock(blockName)
-                .uploadFile(getKey(), file.getAbsolutePath(), metadata);
-        try {
-            FastFileUtils.forceDelete(file);
-        } catch (Exception ignored) {}
         return this;
+    }
+
+    @Override
+    public void delete() throws IOException {
+        super.delete();
+        FastTencentOSSConfig config = FastChar.getConfig(getConfigOnlyCode(),FastTencentOSSConfig.class);
+        FastTencentOSSBlock defaultBlock = config.getDefaultBlock();
+        defaultBlock.deleteFile(getKey());
+    }
+
+    public void delete(String blockName) {
+        FastChar.getConfig(getConfigOnlyCode(),FastTencentOSSConfig.class).getBlock(blockName)
+                .deleteFile(getKey());
     }
 
     @Override

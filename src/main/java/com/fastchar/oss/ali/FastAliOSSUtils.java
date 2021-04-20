@@ -1,8 +1,7 @@
 package com.fastchar.oss.ali;
 
-import com.aliyun.oss.ClientException;
+import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSSClient;
-import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.fastchar.core.FastChar;
 
@@ -26,16 +25,19 @@ public class FastAliOSSUtils {
      */
     public static void uploadFile(String blockName, String fileKey, String url, ObjectMetadata metadata) throws Exception {
         OSSClient ossClient = getClient();
-        if (url.startsWith("http://") || url.startsWith("https://")) {
-            InputStream inputStream = new URL(url).openStream();
-            ossClient.putObject(blockName, fileKey, inputStream, metadata);
-        } else {
-            File file = new File(url);
-            if (file.exists()) {
-                ossClient.putObject(blockName, fileKey, file, metadata);
+        try {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                InputStream inputStream = new URL(url).openStream();
+                ossClient.putObject(blockName, fileKey, inputStream, metadata);
+            } else {
+                File file = new File(url);
+                if (file.exists()) {
+                    ossClient.putObject(blockName, fileKey, file, metadata);
+                }
             }
+        } finally {
+            ossClient.shutdown();
         }
-        ossClient.shutdown();
     }
 
 
@@ -43,12 +45,14 @@ public class FastAliOSSUtils {
      * 是否存在某个文件
      */
     public static boolean existFile(String blockName, String fileKey) {
+        OSSClient ossClient = getClient();
         try {
-            OSSClient ossClient = getClient();
-            boolean exist = ossClient.doesObjectExist(blockName, fileKey);
+            return ossClient.doesObjectExist(blockName, fileKey);
+        } catch (Throwable ignored) {
+
+        }finally {
             ossClient.shutdown();
-            return exist;
-        } catch (Throwable ignored) {}
+        }
         return false;
     }
 
@@ -60,11 +64,13 @@ public class FastAliOSSUtils {
      * @return
      */
     public static boolean deleteFile(String blockName, String fileKey) {
+        OSSClient ossClient = getClient();
         try {
-            OSSClient ossClient = getClient();
             ossClient.deleteObject(blockName, fileKey);
             ossClient.shutdown();
         } catch (Exception ignored) {
+        }finally {
+            ossClient.shutdown();
         }
         return true;
     }
@@ -77,10 +83,14 @@ public class FastAliOSSUtils {
      */
     public static URL getFileUrl(String blockName, String key, int minute) {
         OSSClient ossClient = getClient();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, minute);
-        URL url = ossClient.generatePresignedUrl(blockName, key, calendar.getTime());
-        ossClient.shutdown();
+        URL url;
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, minute);
+            url = ossClient.generatePresignedUrl(blockName, key, calendar.getTime());
+        } finally {
+            ossClient.shutdown();
+        }
         return url;
     }
 

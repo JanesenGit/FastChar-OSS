@@ -1,6 +1,8 @@
 package com.fastchar.oss.ali;
 
+import com.fastchar.annotation.AFastClassFind;
 import com.fastchar.core.FastChar;
+import com.fastchar.exception.FastFindException;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.oss.exception.FastAliBlockException;
 
@@ -10,6 +12,7 @@ import java.util.List;
 /**
  * 阿里OSS 配置
  */
+@AFastClassFind(value = "com.aliyun.oss.OSSClient", url = "https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss")
 public class FastAliOSSConfig implements IFastConfig {
     private String accessKeyId;
     private String accessKeySecret;

@@ -1,9 +1,6 @@
 package com.fastchar.oss.tencent;
 
-import com.aliyun.oss.OSSClient;
 import com.fastchar.core.FastChar;
-import com.fastchar.interfaces.IFastConfig;
-import com.fastchar.oss.ali.FastAliOSSConfig;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.auth.BasicCOSCredentials;

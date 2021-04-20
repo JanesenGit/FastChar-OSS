@@ -1,6 +1,8 @@
 package com.fastchar.oss.tencent;
 
+import com.fastchar.annotation.AFastClassFind;
 import com.fastchar.core.FastChar;
+import com.fastchar.exception.FastFindException;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.oss.exception.FastTencentBlockException;
 
@@ -10,6 +12,7 @@ import java.util.List;
 /**
  * 腾讯COS服务器配置
  */
+@AFastClassFind(value = "com.qcloud.cos.COSClient", url = "https://mvnrepository.com/artifact/com.qcloud/cos_api")
 public class FastTencentOSSConfig implements IFastConfig {
     private String appId;
     private String secretId;
@@ -19,7 +22,7 @@ public class FastTencentOSSConfig implements IFastConfig {
     private int minute = 60;
     private boolean debug;
 
-    public FastTencentOSSConfig() {
+    public FastTencentOSSConfig()  {
         FastChar.getOverrides().add(FastTencentOSSFile.class);
         if (FastChar.getConstant().isDebug()) {
             FastChar.getLog().info("已启用腾讯云COS（对象存储）服务器！");
