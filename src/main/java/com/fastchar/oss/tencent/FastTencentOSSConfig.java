@@ -2,7 +2,6 @@ package com.fastchar.oss.tencent;
 
 import com.fastchar.annotation.AFastClassFind;
 import com.fastchar.core.FastChar;
-import com.fastchar.exception.FastFindException;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.oss.exception.FastTencentBlockException;
 
@@ -18,17 +17,31 @@ public class FastTencentOSSConfig implements IFastConfig {
     private String secretId;
     private String secretKey;
     private String regionName;//所在地域
-    private List<FastTencentOSSBlock> blocks = new ArrayList<>();
-    private int minute = 60;
+    private final List<FastTencentOSSBlock> blocks = new ArrayList<>();
+
     private boolean debug;
 
     public FastTencentOSSConfig()  {
         FastChar.getOverrides().add(FastTencentOSSFile.class);
         if (FastChar.getConstant().isDebug()) {
-            FastChar.getLog().info("已启用腾讯云COS（对象存储）服务器！");
+            FastChar.getLogger().info(this.getClass(),"已启用腾讯云COS（对象存储）服务器！");
         }
         FastChar.getValues().put("oss", "tencent");
     }
+
+    private void putOSSHosts() {
+        List<String> hosts = new ArrayList<>();
+        for (FastTencentOSSBlock block : this.blocks) {
+            hosts.add(block.getBlockHttp());
+        }
+        FastChar.getValues().put("ossHosts", hosts);
+    }
+
+
+    private FastTencentOSSClient getOSSClient() {
+        return new FastTencentOSSClient(getAppId(), getSecretKey(), getRegionName());
+    }
+
 
 
     /**
@@ -39,11 +52,12 @@ public class FastTencentOSSConfig implements IFastConfig {
      * @param blockSecurity 权限配置
      * @return 当前对象
      */
-    public FastTencentOSSConfig addBlock(String blockName, String blockHttp, FastTencentOSSBlock.SecurityEnum blockSecurity) {
-        this.blocks.add(new FastTencentOSSBlock()
+    public FastTencentOSSConfig addBlock(String blockName, String blockHttp, FastTencentOSSBlock.TencentSecurityEnum blockSecurity) {
+        this.blocks.add(new FastTencentOSSBlock(getOSSClient())
                 .setBlockName(blockName)
                 .setBlockHttp(blockHttp)
                 .setBlockSecurity(blockSecurity));
+        this.putOSSHosts();
         return this;
     }
 
@@ -55,7 +69,7 @@ public class FastTencentOSSConfig implements IFastConfig {
      * @param blockSecurity 权限配置
      * @return 当前对象
      */
-    public FastTencentOSSConfig setBlock(String blockName, String blockHttp, FastTencentOSSBlock.SecurityEnum blockSecurity) {
+    public FastTencentOSSConfig setBlock(String blockName, String blockHttp, FastTencentOSSBlock.TencentSecurityEnum blockSecurity) {
         List<FastTencentOSSBlock> waitRemove = new ArrayList<>();
         for (FastTencentOSSBlock block : this.blocks) {
             if (block.isBlockDefault()) {
@@ -63,11 +77,12 @@ public class FastTencentOSSConfig implements IFastConfig {
             }
         }
         this.blocks.removeAll(waitRemove);
-        this.blocks.add(new FastTencentOSSBlock()
+        this.blocks.add(new FastTencentOSSBlock(getOSSClient())
                 .setBlockName(blockName)
                 .setBlockHttp(blockHttp)
                 .setBlockDefault(true)
                 .setBlockSecurity(blockSecurity));
+        this.putOSSHosts();
         return this;
     }
 
@@ -88,8 +103,6 @@ public class FastTencentOSSConfig implements IFastConfig {
         }
         throw new FastTencentBlockException("not found block '" + blockName + "'!");
     }
-
-
 
 
     public String getSecretId() {
@@ -116,15 +129,6 @@ public class FastTencentOSSConfig implements IFastConfig {
 
     public FastTencentOSSConfig setRegionName(String regionName) {
         this.regionName = regionName;
-        return this;
-    }
-
-    public int getMinute() {
-        return minute;
-    }
-
-    public FastTencentOSSConfig setMinute(int minute) {
-        this.minute = minute;
         return this;
     }
 

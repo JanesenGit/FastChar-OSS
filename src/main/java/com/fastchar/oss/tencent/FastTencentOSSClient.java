@@ -1,6 +1,6 @@
 package com.fastchar.oss.tencent;
 
-import com.fastchar.core.FastChar;
+import com.fastchar.utils.FastHttpURLConnectionUtils;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.auth.BasicCOSCredentials;
@@ -14,14 +14,21 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
 
-public class FastTencentOSSUtils {
+public class FastTencentOSSClient {
 
-    private static COSClient getClient() {
-        FastTencentOSSConfig config = FastChar.getConfig(FastTencentOSSConfig.class);
-        String secretId = config.getSecretId();
-        String secretKey = config.getSecretKey();
-        COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
-        Region region = new Region(config.getRegionName());
+    private final String secretId;
+    private final String secretKey;
+    private final String regionName;
+
+    public FastTencentOSSClient(String secretId, String secretKey, String regionName) {
+        this.secretId = secretId;
+        this.secretKey = secretKey;
+        this.regionName = regionName;
+    }
+
+    private COSClient getClient() {
+        COSCredentials cred = new BasicCOSCredentials(this.secretId, this.secretKey);
+        Region region = new Region(regionName);
         ClientConfig clientConfig = new ClientConfig(region);
         return new COSClient(cred, clientConfig);
     }
@@ -30,10 +37,10 @@ public class FastTencentOSSUtils {
     /**
      * 上传文件
      */
-    public static void uploadFile(String blockName, String fileKey, String url, ObjectMetadata metadata) throws Exception {
+    public void uploadFile(String blockName, String fileKey, String url, ObjectMetadata metadata) throws Exception {
         COSClient ossClient = getClient();
         if (url.startsWith("http://") || url.startsWith("https://")) {
-            InputStream inputStream = new URL(url).openStream();
+            InputStream inputStream = FastHttpURLConnectionUtils.getInputStream(url);
             ossClient.putObject(blockName, fileKey, inputStream, metadata);
         } else {
             File file = new File(url);
@@ -48,7 +55,7 @@ public class FastTencentOSSUtils {
     /**
      * 是否存在某个文件
      */
-    public static boolean existFile(String blockName, String fileKey) {
+    public boolean existFile(String blockName, String fileKey) {
         COSClient ossClient = getClient();
         boolean exist = ossClient.doesObjectExist(blockName, fileKey);
         ossClient.shutdown();
@@ -64,7 +71,7 @@ public class FastTencentOSSUtils {
      * @param fileKey
      * @return
      */
-    public static boolean deleteFile(String blockName, String fileKey) {
+    public boolean deleteFile(String blockName, String fileKey) {
         COSClient ossClient = getClient();
         ossClient.deleteObject(blockName, fileKey);
         ossClient.shutdown();
@@ -77,7 +84,7 @@ public class FastTencentOSSUtils {
      *
      * @param key
      */
-    public static URL getFileUrl(String blockName, String key, int minute) {
+    public URL getFileUrl(String blockName, String key, int minute) {
         COSClient ossClient = getClient();
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, minute);

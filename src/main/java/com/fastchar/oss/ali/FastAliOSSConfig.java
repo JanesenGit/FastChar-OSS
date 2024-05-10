@@ -2,7 +2,6 @@ package com.fastchar.oss.ali;
 
 import com.fastchar.annotation.AFastClassFind;
 import com.fastchar.core.FastChar;
-import com.fastchar.exception.FastFindException;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.oss.exception.FastAliBlockException;
 
@@ -17,17 +16,31 @@ public class FastAliOSSConfig implements IFastConfig {
     private String accessKeyId;
     private String accessKeySecret;
     private String endPoint;
-    private List<FastAliOSSBlock> blocks = new ArrayList<>();
-    private int minute = 60;
+    private final List<FastAliOSSBlock> blocks = new ArrayList<>();
+
     private boolean debug;
 
     public FastAliOSSConfig() {
         FastChar.getOverrides().add(FastAliOSSFile.class);
         if (FastChar.getConstant().isDebug()) {
-            FastChar.getLog().info("已启用阿里云OSS（对象存储）服务器！");
+            FastChar.getLogger().info(this.getClass(), "已启用阿里云OSS（对象存储）服务器！");
         }
         FastChar.getValues().put("oss", "ali");
     }
+
+
+    private void putOSSHosts() {
+        List<String> hosts = new ArrayList<>();
+        for (FastAliOSSBlock block : this.blocks) {
+            hosts.add(block.getBlockHttp());
+        }
+        FastChar.getValues().put("ossHosts", hosts);
+    }
+
+    private FastAliOSSClient getOSSClient() {
+        return new FastAliOSSClient(getAccessKeyId(), getAccessKeySecret(), getEndPoint());
+    }
+
 
     public String getAccessKeyId() {
         return accessKeyId;
@@ -64,11 +77,12 @@ public class FastAliOSSConfig implements IFastConfig {
      * @param blockSecurity 权限配置
      * @return 当前对象
      */
-    public FastAliOSSConfig addBlock(String blockName, String blockHttp, FastAliOSSBlock.SecurityEnum blockSecurity) {
-        this.blocks.add(new FastAliOSSBlock()
+    public FastAliOSSConfig addBlock(String blockName, String blockHttp, FastAliOSSBlock.AliSecurityEnum blockSecurity) {
+        this.blocks.add(new FastAliOSSBlock(getOSSClient())
                 .setBlockName(blockName)
                 .setBlockHttp(blockHttp)
                 .setBlockSecurity(blockSecurity));
+        this.putOSSHosts();
         return this;
     }
 
@@ -80,7 +94,7 @@ public class FastAliOSSConfig implements IFastConfig {
      * @param blockSecurity 权限配置
      * @return 当前对象
      */
-    public FastAliOSSConfig setBlock(String blockName, String blockHttp, FastAliOSSBlock.SecurityEnum blockSecurity) {
+    public FastAliOSSConfig setBlock(String blockName, String blockHttp, FastAliOSSBlock.AliSecurityEnum blockSecurity) {
         List<FastAliOSSBlock> waitRemove = new ArrayList<>();
         for (FastAliOSSBlock block : this.blocks) {
             if (block.isBlockDefault()) {
@@ -88,11 +102,12 @@ public class FastAliOSSConfig implements IFastConfig {
             }
         }
         this.blocks.removeAll(waitRemove);
-        this.blocks.add(new FastAliOSSBlock()
+        this.blocks.add(new FastAliOSSBlock(getOSSClient())
                 .setBlockName(blockName)
                 .setBlockHttp(blockHttp)
                 .setBlockDefault(true)
                 .setBlockSecurity(blockSecurity));
+        this.putOSSHosts();
         return this;
     }
 
@@ -114,14 +129,6 @@ public class FastAliOSSConfig implements IFastConfig {
         throw new FastAliBlockException("not found block '" + blockName + "'!");
     }
 
-    public int getMinute() {
-        return minute;
-    }
-
-    public FastAliOSSConfig setMinute(int minute) {
-        this.minute = minute;
-        return this;
-    }
 
     public boolean isDebug() {
         return debug;

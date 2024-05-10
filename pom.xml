@@ -6,15 +6,13 @@
 
     <groupId>com.fastchar</groupId>
     <artifactId>fastchar-oss</artifactId>
-    <version>1.5.2</version>
+    <version>1.6.1</version>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>7</source>
-                    <target>7</target>
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
@@ -28,9 +26,36 @@
                 <configuration>
                     <archive>
                         <manifestFile>${basedir}/src/main/java/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>
+                            <Build-User>${user.name}</Build-User>
+                            <Build-Java>${java.version}</Build-Java>
+                            <Build-OS>${os.name}</Build-OS>
+                            <Bundle-Name>${project.artifactId}</Bundle-Name>
+                            <Bundle-Version>${project.version}</Bundle-Version>
+                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
+
+
+            <!-- Source -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -45,10 +70,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
     </properties>
 
     <licenses>
@@ -74,16 +98,6 @@
 
     <profiles>
         <profile>
-            <id>disable-javadoc-doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <javadoc.opts>-Xdoclint:none</javadoc.opts>
-            </properties>
-        </profile>
-
-        <profile>
             <id>release</id>
             <build>
                 <plugins>
@@ -105,14 +119,16 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>3.6.3</version>
                         <configuration>
                             <show>private</show>
                             <nohelp>true</nohelp>
                             <charset>UTF-8</charset>
                             <encoding>UTF-8</encoding>
                             <docencoding>UTF-8</docencoding>
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <additionalJOptions>
+                                <additionalJOption>-Xdoclint:none</additionalJOption>
+                            </additionalJOptions>
                         </configuration>
                         <executions>
                             <execution>
@@ -173,25 +189,34 @@
             <groupId>com.fastchar</groupId>
             <artifactId>fastchar</artifactId>
             <version>[1.0,)</version>
-            <scope>compile</scope>
         </dependency>
 
-       <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
-       <dependency>
-           <groupId>com.aliyun.oss</groupId>
-           <artifactId>aliyun-sdk-oss</artifactId>
-           <version>3.4.2</version>
-           <scope>compile</scope>
-       </dependency>
+        <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.17.2</version>
+            <scope>provided</scope>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/com.qcloud/cos_api -->
         <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>cos_api</artifactId>
-            <version>5.6.19</version>
-            <scope>compile</scope>
+            <version>5.6.185</version>
+            <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>oos-sdk</artifactId>
+            <scope>system</scope>
+            <version>6.5.4</version>
+            <systemPath>${project.basedir}/libs/oos-java-sdk-6.5.4.jar</systemPath>
+        </dependency>
+
+
     </dependencies>
 
 </project>

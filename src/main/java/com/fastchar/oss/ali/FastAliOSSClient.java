@@ -1,33 +1,40 @@
 package com.fastchar.oss.ali;
 
-import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.ObjectMetadata;
-import com.fastchar.core.FastChar;
+import com.fastchar.utils.FastHttpURLConnectionUtils;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
 
-public class FastAliOSSUtils {
+public class FastAliOSSClient {
 
-    private static OSSClient getClient() {
-        return new OSSClient(FastChar.getConfig(FastAliOSSConfig.class).getEndPoint(),
-                FastChar.getConfig(FastAliOSSConfig.class).getAccessKeyId(),
-                FastChar.getConfig(FastAliOSSConfig.class).getAccessKeySecret());
 
+    public FastAliOSSClient(String accessKeyId, String accessKeySecret, String endPoint) {
+        this.accessKeyId = accessKeyId;
+        this.accessKeySecret = accessKeySecret;
+        this.endPoint = endPoint;
     }
 
+    private final String accessKeyId;
+    private final String accessKeySecret;
+    private final String endPoint;
+
+
+    private OSSClient getClient() {
+        return new OSSClient(endPoint, accessKeyId, accessKeySecret);
+    }
 
     /**
      * 上传文件
      */
-    public static void uploadFile(String blockName, String fileKey, String url, ObjectMetadata metadata) throws Exception {
+    public void uploadFile(String blockName, String fileKey, String url, ObjectMetadata metadata) throws Exception {
         OSSClient ossClient = getClient();
         try {
             if (url.startsWith("http://") || url.startsWith("https://")) {
-                InputStream inputStream = new URL(url).openStream();
+                InputStream inputStream = FastHttpURLConnectionUtils.getInputStream(url);
                 ossClient.putObject(blockName, fileKey, inputStream, metadata);
             } else {
                 File file = new File(url);
@@ -44,7 +51,7 @@ public class FastAliOSSUtils {
     /**
      * 是否存在某个文件
      */
-    public static boolean existFile(String blockName, String fileKey) {
+    public boolean existFile(String blockName, String fileKey) {
         OSSClient ossClient = getClient();
         try {
             return ossClient.doesObjectExist(blockName, fileKey);
@@ -63,7 +70,7 @@ public class FastAliOSSUtils {
      * @param fileKey
      * @return
      */
-    public static boolean deleteFile(String blockName, String fileKey) {
+    public boolean deleteFile(String blockName, String fileKey) {
         OSSClient ossClient = getClient();
         try {
             ossClient.deleteObject(blockName, fileKey);
@@ -81,7 +88,7 @@ public class FastAliOSSUtils {
      *
      * @param key
      */
-    public static URL getFileUrl(String blockName, String key, int minute) {
+    public URL getFileUrl(String blockName, String key, int minute) {
         OSSClient ossClient = getClient();
         URL url;
         try {

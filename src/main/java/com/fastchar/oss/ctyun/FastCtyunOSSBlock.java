@@ -1,21 +1,21 @@
-package com.fastchar.oss.tencent;
+package com.fastchar.oss.ctyun;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fastchar.utils.FastStringUtils;
-import com.qcloud.cos.model.ObjectMetadata;
 
 import java.net.URL;
 
-public class FastTencentOSSBlock {
+public class FastCtyunOSSBlock {
 
-    private final FastTencentOSSClient ossClient;
+    private final FastCtyunOSSClient ossClient;
 
-    public FastTencentOSSBlock(FastTencentOSSClient ossClient) {
+    public FastCtyunOSSBlock(FastCtyunOSSClient ossClient) {
         this.ossClient = ossClient;
     }
 
     private String blockName;//oss的存储块名称
     private String blockHttp;//oss的存储块访问地址
-    private TencentSecurityEnum blockSecurity;
+    private CtyunSecurityEnum blockSecurity;
     private boolean blockDefault;
 
     private int minute = 60;
@@ -24,7 +24,7 @@ public class FastTencentOSSBlock {
         return blockName;
     }
 
-    public FastTencentOSSBlock setBlockName(String blockName) {
+    public FastCtyunOSSBlock setBlockName(String blockName) {
         this.blockName = blockName;
         return this;
     }
@@ -33,16 +33,16 @@ public class FastTencentOSSBlock {
         return blockHttp;
     }
 
-    public FastTencentOSSBlock setBlockHttp(String blockHttp) {
+    public FastCtyunOSSBlock setBlockHttp(String blockHttp) {
         this.blockHttp = FastStringUtils.stripEnd(blockHttp, "/") + "/";
         return this;
     }
 
-    public TencentSecurityEnum getBlockSecurity() {
+    public CtyunSecurityEnum getBlockSecurity() {
         return blockSecurity;
     }
 
-    public FastTencentOSSBlock setBlockSecurity(TencentSecurityEnum blockSecurity) {
+    public FastCtyunOSSBlock setBlockSecurity(CtyunSecurityEnum blockSecurity) {
         this.blockSecurity = blockSecurity;
         return this;
     }
@@ -51,7 +51,7 @@ public class FastTencentOSSBlock {
         return blockDefault;
     }
 
-    public FastTencentOSSBlock setBlockDefault(boolean blockDefault) {
+    public FastCtyunOSSBlock setBlockDefault(boolean blockDefault) {
         this.blockDefault = blockDefault;
         return this;
     }
@@ -60,12 +60,12 @@ public class FastTencentOSSBlock {
         return minute;
     }
 
-    public FastTencentOSSBlock setMinute(int minute) {
+    public FastCtyunOSSBlock setMinute(int minute) {
         this.minute = minute;
         return this;
     }
 
-    public enum TencentSecurityEnum {
+    public enum CtyunSecurityEnum {
         Block_Private,
         Block_Public_Read,
         Block_Public_Read_Write
@@ -110,7 +110,7 @@ public class FastTencentOSSBlock {
      * @return
      */
     public String getFileUrl(String fileKey, int minute) {
-        if (getBlockSecurity() == TencentSecurityEnum.Block_Private) {
+        if (getBlockSecurity() == CtyunSecurityEnum.Block_Private) {
             URL fileUrl = ossClient.getFileUrl(getBlockName(), fileKey, minute);
             if (fileUrl != null) {
                 return fileUrl.toString();

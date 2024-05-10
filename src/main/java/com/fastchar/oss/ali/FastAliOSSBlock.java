@@ -1,7 +1,6 @@
 package com.fastchar.oss.ali;
 
 import com.aliyun.oss.model.ObjectMetadata;
-import com.fastchar.core.FastChar;
 import com.fastchar.utils.FastStringUtils;
 
 import java.net.URL;
@@ -10,8 +9,15 @@ public class FastAliOSSBlock {
 
     private String blockName;//oss的存储块名称
     private String blockHttp;//oss的存储块访问地址
-    private SecurityEnum blockSecurity;
+    private AliSecurityEnum blockSecurity;
     private boolean blockDefault;
+
+    private FastAliOSSClient ossClient;
+    private int minute = 60;
+
+    public FastAliOSSBlock(FastAliOSSClient ossClient) {
+        this.ossClient = ossClient;
+    }
 
     public String getBlockName() {
         return blockName;
@@ -31,11 +37,11 @@ public class FastAliOSSBlock {
         return this;
     }
 
-    public SecurityEnum getBlockSecurity() {
+    public AliSecurityEnum getBlockSecurity() {
         return blockSecurity;
     }
 
-    public FastAliOSSBlock setBlockSecurity(SecurityEnum blockSecurity) {
+    public FastAliOSSBlock setBlockSecurity(AliSecurityEnum blockSecurity) {
         this.blockSecurity = blockSecurity;
         return this;
     }
@@ -49,7 +55,16 @@ public class FastAliOSSBlock {
         return this;
     }
 
-    public enum SecurityEnum {
+    public int getMinute() {
+        return minute;
+    }
+
+    public FastAliOSSBlock setMinute(int minute) {
+        this.minute = minute;
+        return this;
+    }
+
+    public enum AliSecurityEnum {
         Block_Private,
         Block_Public_Read,
         Block_Public_Read_Write
@@ -64,7 +79,7 @@ public class FastAliOSSBlock {
      * @param metadata
      */
     public void uploadFile(String fileKey, String url, ObjectMetadata metadata) throws Exception {
-        FastAliOSSUtils.uploadFile(getBlockName(), fileKey, url, metadata);
+        ossClient.uploadFile(getBlockName(), fileKey, url, metadata);
     }
 
     /**
@@ -73,7 +88,7 @@ public class FastAliOSSBlock {
      * @param url 网络路径或本地路径
      */
     public void uploadFile(String fileKey, String url) throws Exception {
-        FastAliOSSUtils.uploadFile(getBlockName(), fileKey, url, null);
+        ossClient.uploadFile(getBlockName(), fileKey, url, null);
     }
 
 
@@ -83,7 +98,7 @@ public class FastAliOSSBlock {
      * @return
      */
     public String getFileUrl(String fileKey) {
-        return getFileUrl(fileKey, FastChar.getConfig(FastAliOSSConfig.class).getMinute());
+        return getFileUrl(fileKey, minute);
     }
 
     /**
@@ -94,8 +109,8 @@ public class FastAliOSSBlock {
      * @return
      */
     public String getFileUrl(String fileKey, int minute) {
-        if (getBlockSecurity() == SecurityEnum.Block_Private) {
-            URL fileUrl = FastAliOSSUtils.getFileUrl(getBlockName(), fileKey, minute);
+        if (getBlockSecurity() == AliSecurityEnum.Block_Private) {
+            URL fileUrl = ossClient.getFileUrl(getBlockName(), fileKey, minute);
             if (fileUrl != null) {
                 return fileUrl.toString();
             }
@@ -109,7 +124,7 @@ public class FastAliOSSBlock {
      * @return
      */
     public boolean existFile(String fileKey) {
-        return FastAliOSSUtils.existFile(getBlockName(), fileKey);
+        return ossClient.existFile(getBlockName(), fileKey);
     }
 
 
@@ -119,7 +134,7 @@ public class FastAliOSSBlock {
      * @return
      */
     public boolean deleteFile(String fileKey) {
-        return FastAliOSSUtils.deleteFile(getBlockName(), fileKey);
+        return ossClient.deleteFile(getBlockName(), fileKey);
     }
 
 
